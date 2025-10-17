@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Pharmacy Sales & Inventory</title>
+    <link rel="stylesheet" href="dashboard.css">
+   
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        
+        <h1 class="system-name">
+            Pharmacy Sales And<br>
+            Inventory Management<br>
+            System
+        </h1>
+        
+        <div class="black-line"></div>
+        
+
+        <!-- Sidebar menu -->
+        <ul class="sidebar-menu">
+            <li class="active" onclick="showSection('dashboard')">Home</li>
+            <li onclick="showSection('inventory')">Inventory</li>
+            <li onclick="showSection('alerts')">Stock Alerts</li>
+            <li onclick="showSection('sales')">Sales</li>
+            <li onclick="showSection('medicines')">Medicine List</li>
+            <!--MANAGE USER-->
+            <li id="manageUsers" onclick="showSection('users')">Manage Users</li>
+            <li onclick="showSection('profile')">Profile</li>
+            <li onclick="logout()">Logout</li>
+        </ul>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-area">
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="content-section active">
+            <div class="welcome-header">
+                <div>
+                    <h2 style="margin: 0; color: var(--text);">Welcome back, <span id="username-display">Pharmacist</span>!</h2>
+                    <p style="margin: 5px 0 0 0; color: #64748b;">Here's what's happening in your pharmacy today</p>
+                </div>
+                <div style="color: #64748b; font-size: 14px;">
+                    <span id="current-date"></span>
+                </div>
+            </div>
+
+            <div class="dashboard-cards">
+                <div class="card">
+                    <h3>Total Medicines</h3>
+                    <div class="number" id="total-medicines">0</div>
+                    <div class="description">In Inventory</div>
+                </div>
+                <div class="card">
+                    <h3>Low Stock Items</h3>
+                    <div class="number" id="low-stock-count" style="color: #dc2626;">0</div>
+                    <div class="description">Need reordering</div>
+                </div>
+                <div class="card">
+                    <h3>Today's Revenue</h3>
+                    <div class="number" id="today-sales" style="color: #16a34a;">₱0</div>
+                    <div class="description">Sales today</div>
+                </div>
+                <div class="card">
+                    <h3>Today's Transactions</h3>
+                    <div class="number" id="today-transactions" style="color: #2563eb;">0</div>
+                    <div class="description">Sales count today</div>
+                </div>
+            </div>
+                                    
+            <div class="data-table">
+                <h3 style="padding: 20px; margin: 0; background: var(--panel-green);">Recent Activity</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Stock Level</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-activity">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #64748b;">Loading recent activity...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="users-section" class="content-section">
+            <div class="section-header">
+                <h2>Manage Users</h2>
+                <div>
+                    <button class="btn" onclick="showAddUserForm()">Add New User</button>
+                </div>
+            </div>
+            <!--ADD USER Form-->
+            <div id="add-user-form" class="form-container hidden">
+                <h3>Add New User</h3>
+                <form id="user-form">
+                    <div class="form-group">
+                        <label for="user-fullname">Full Name *</label>
+                        <input type="text" id="user-fullname" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-email">Email *</label>
+                        <input type="email" id="user-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-username">Username *</label>
+                        <input type="text" id="user-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-password">Password *</label>
+                        <div style="position: relative;">
+                            <input type="password" id="user-password" required style="padding-right: 40px;">
+                            <button type="button" class="password-toggle" onclick="togglePassword('user-password', 'toggle-user-password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                                👁
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-role">Role *</label>
+                        <select id="user-role" required>
+                            <option value="">Select role</option>
+                            <option value="admin">Administrator</option>
+                            <option value="pharmacist">Pharmacist</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn">Save User</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideAddUserForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            <!-- Edit User Form -->
+            <div id="edit-user-form" class="form-container hidden">
+                <h3>Edit User</h3>
+                <form id="edit-user-form-element">
+                    <input type="hidden" id="edit-user-id" name="id">
+                    
+                    <div class="form-group">
+                        <label for="edit-user-fullname">Full Name *</label>
+                        <input type="text" id="edit-user-fullname" name="full_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-user-username">Username *</label>
+                        <input type="text" id="edit-user-username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-user-email">Email *</label>
+                        <input type="email" id="edit-user-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-user-role">Role *</label>
+                        <select id="edit-user-role" name="role" required>
+                            <option value="">Select role</option>
+                            <option value="admin">Administrator</option>
+                            <option value="pharmacist">Pharmacist</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="edit-change-password" name="change_password">
+                            Reset Password
+                        </label>
+                    </div>
+                    <div class="form-group" id="edit-password-field" style="display: none;">
+                        <label for="edit-user-password">New Password *</label>
+                        <div style="position: relative;">
+                            <input type="password" id="edit-user-password" name="new_password" style="padding-right: 40px;">
+                            <button type="button" class="password-toggle" onclick="togglePassword('edit-user-password', 'toggle-edit-password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                                👁
+                            </button>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn">Update User</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideEditUserForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>            
+
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-list">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #64748b;">Loading users...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Inventory Section -->
+        <div id="inventory-section" class="content-section">
+            <div class="section-header">
+                <h2>Inventory Management</h2>
+                <div>
+                    <button class="btn" onclick="showAddMedicineForm()">Add Medicine</button>
+                </div>
+            </div>
+
+            <!-- Inventory Summary Cards -->
+            <div class="dashboard-cards" style="margin-bottom: 30px;">
+                <div class="card">
+                    <h3>Total Medicines</h3>
+                    <div class="number" id="inventory-total-medicines" style="color: var(--accent);">0</div>
+                    <div class="description">In Inventory</div>
+                </div>
+                <div class="card">
+                    <h3>Low Stock Items</h3>
+                    <div class="number" id="inventory-low-stock" style="color: #dc2626;">0</div>
+                    <div class="description">Need attention</div>
+                </div>
+                <div class="card">
+                    <h3>Total Stock Value</h3>
+                    <div class="number" id="inventory-total-value" style="color: #10b981;">₱0</div>
+                    <div class="description">Current worth</div>
+                </div>
+                <div class="card">
+                    <h3>Categories</h3>
+                    <div class="number" id="inventory-categories-count" style="color: #f59e0b;">0</div>
+                    <div class="description">Medicine types</div>
+                </div>
+            </div>
+
+            <div id="add-medicine-form" class="form-container hidden">
+                <h3>Add New Medicine</h3>
+                <form id="medicine-form">
+                    <div class="form-group">
+                        <label for="medicine-name">Medicine Name *</label>
+                        <input type="text" id="medicine-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="generic-name">Generic Name</label>
+                        <input type="text" id="generic-name" name="generic_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="brand">Brand</label>
+                        <input type="text" id="brand" name="brand" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select category</option>
+                            <option value="Tablet">Tablet</option>
+                            <option value="Capsule">Capsule</option>
+                            <option value="Syrup">Syrup</option>
+                            <option value="Cream">Cream/Ointment</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dosage">Dosage</label>
+                        <input type="text" id="dosage" name="dosage" placeholder="e.g., 500mg" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Unit Price (₱) *</label>
+                        <input type="number" id="price" name="unit_price" step="0.01" min="0" max="9999999999999.99" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock">Stock Quantity *</label>
+                        <input type="number" id="stock" name="stock_quantity" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reorder-level">Reorder Level</label>
+                        <input type="number" id="reorder-level" name="reorder_level" min="0" value="10"required>
+                    </div>
+                    <div class="form-group">
+                        <label for="batch-number">Batch Number</label>
+                        <input type="text" id="batch-number" name="batch_number" placeholder="e.g., BATCH-001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expiry-date">Expiry Date</label>
+                        <input type="date" id="expiry-date" name="expiry_date"required>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplier">Supplier</label>
+                        <input type="text" id="supplier" name="supplier" required>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn">Save Medicine</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideAddMedicineForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Edit Medicine Form -->
+            <div id="edit-medicine-form" class="form-container hidden">
+                <h3>Edit Medicine</h3>
+                <form id="edit-medicine-form-element">
+                    <input type="hidden" id="edit-medicine-id" name="id">
+                    
+                    <div class="form-group">
+                        <label for="edit-medicine-name">Medicine Name *</label>
+                        <input type="text" id="edit-medicine-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-generic-name">Generic Name</label>
+                        <input type="text" id="edit-generic-name" name="generic_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-brand">Brand</label>
+                        <input type="text" id="edit-brand" name="brand" required>
+                    </div>
+                    <div class="form-group" >
+                        <label for="edit-category">Category</label>
+                        <select id="edit-category" name="category" required>
+                            <option value="">Select category</option>
+                            <option value="Tablet">Tablet</option>
+                            <option value="Capsule">Capsule</option>
+                            <option value="Syrup">Syrup</option>
+                            <option value="Cream">Cream/Ointment</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-dosage">Dosage</label>
+                        <input type="text" id="edit-dosage" name="dosage" placeholder="e.g., 500mg" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-price">Unit Price (₱) *</label>
+                        <input type="number" id="edit-price" name="unit_price" step="0.01" min="0" max="9999999999999.99" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-stock">Stock Quantity *</label>
+                        <input type="number" id="edit-stock" name="stock_quantity" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-reorder-level">Reorder Level</label>
+                        <input type="number" id="edit-reorder-level" name="reorder_level" min="0" value="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-batch-number">Batch Number</label>
+                        <input type="text" id="edit-batch-number" name="batch_number" placeholder="e.g., BATCH-001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-expiry-date">Expiry Date</label>
+                        <input type="date" id="edit-expiry-date" name="expiry_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-supplier">Supplier</label>
+                        <input type="text" id="edit-supplier" name="supplier" required>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn">Update Medicine</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideEditMedicineForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Brand</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                            <th>Price (₱)</th>
+                            <th>Batch Number</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-list">
+                        <tr>
+                            <td colspan="8" style="text-align: center; color: #64748b;">Loading inventory...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Stock Alerts Section -->
+        <div id="alerts-section" class="content-section">
+            <div class="section-header">
+                <h2>Stock Alerts Management</h2>
+            </div>
+
+            <div class="dashboard-cards" style="margin-bottom: 30px;">
+                <div class="card">
+                    <h3>Critical Alerts</h3>
+                    <div class="number" id="critical-alerts-count" style="color: #dc2626;">0</div>
+                    <div class="description">Expired + Low Stock & Expiring</div>
+                </div>
+                <div class="card">
+                    <h3>Low Stock</h3>
+                    <div class="number" id="low-stock-alerts-count" style="color: #f59e0b;">0</div>
+                    <div class="description">Below reorder level</div>
+                </div>
+                <div class="card">
+                    <h3>Expiring Soon</h3>
+                    <div class="number" id="expiring-alerts-count" style="color: #f59e0b;">0</div>
+                    <div class="description">Within 90 days</div>
+                </div>
+                <div class="card">
+                    <h3>Total Alerts</h3>
+                    <div class="number" id="total-alerts-count" style="color: #10b981;">0</div>
+                    <div class="description">All issues combined</div>
+                </div>
+            </div>
+
+            <!-- Filter tabs -->
+            <div style="margin-bottom: 20px;">
+                <button class="btn" id="all-alerts-btn" onclick="filterAlerts('all')" style="margin-right: 10px;">All Alerts</button>
+                <button class="btn btn-secondary" id="critical-alerts-btn" onclick="filterAlerts('critical')" style="margin-right: 10px;">Critical</button>
+                <button class="btn btn-secondary" id="lowstock-alerts-btn" onclick="filterAlerts('lowstock')" style="margin-right: 10px;">Low Stock</button>
+                <button class="btn btn-secondary" id="expiring-alerts-btn" onclick="filterAlerts('expiring')">Expiring</button>
+            </div>
+
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Medicine Name</th>
+                            <th>Brand</th>
+                            <th>Current Stock</th>
+                            <th>Reorder Level</th>
+                            <th>Expiry Date</th>
+                            <th>Alert Type</th>
+                            <th>Priority</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alerts-list">
+                        <tr>
+                            <td colspan="8" style="text-align: center; color: #64748b;">Loading stock alerts...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Medicine List Section -->
+        <div id="medicines-section" class="content-section">
+            <div class="section-header">
+                <h2>Medicine List</h2>
+            </div>
+        
+            <!-- Search and Filter Bar -->
+            <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <input type="text" id="medicine-search" placeholder="Search medicines by name, brand, or generic name..." style="margin: 0;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <select id="category-filter" style="margin: 0;">
+                            <option value="">All Categories</option>
+                            <option value="tablet">Tablet</option>
+                            <option value="capsule">Capsule</option>
+                            <option value="syrup">Syrup</option>
+                            <option value="cream">Cream</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <select id="status-filter" style="margin: 0;">
+                            <option value="">All Status</option>
+                            <option value="in-stock">In Stock</option>
+                            <option value="low-stock">Low Stock</option>
+                            <option value="expiring">Expiring Soon</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <select id="sort-by" style="margin: 0;">
+                            <option value="name">Sort by Name</option>
+                            <option value="stock">Sort by Stock</option>
+                            <option value="price">Sort by Price</option>
+                            <option value="expiry">Sort by Expiry</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="btn btn-secondary" onclick="clearFilters()" style="padding: 8px 16px; font-size: 14px;">Clear Filters</button>
+                    <span id="medicine-count" style="color: #64748b; font-size: 14px;"></span>
+                </div>
+            </div>
+        
+            <!-- Medicines Grid View -->
+            <div id="medicines-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <!-- Medicine cards will be inserted here -->
+            </div>
+        
+            <!-- Detailed Medicines Table -->
+            <div class="data-table">
+                <h3 style="padding: 15px 20px; margin: 0; background: var(--panel-green); display: flex; justify-content: space-between; align-items: center;">
+                    <span>Detailed Medicine Information</span>
+                </h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Medicine Details</th>
+                            <th>Category & Dosage</th>
+                            <th>Stock Info</th>
+                            <th>Pricing</th>
+                            <th>Expiry & Supplier</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="medicines-table-list">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #64748b;">Loading medicines...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sales Section -->
+        <div id="sales-section" class="content-section">
+            <div class="section-header">
+                <h2>Sales Management</h2>
+                <div>
+                    <button class="btn" onclick="showNewSaleForm()">New Sale</button>
+                </div>
+            </div>
+
+            <div class="dashboard-cards">
+                <div class="card">
+                    <h3>Today's Revenue</h3>
+                    <div class="number" id="today-revenue" style="color: var(--success);">₱0</div>
+                    <div class="description">Revenue today</div>
+                </div>
+                <div class="card">
+                    <h3>This Week</h3>
+                    <div class="number" id="week-revenue" style="color: var(--success);">₱0</div>
+                    <div class="description">Weekly revenue</div>
+                </div>
+                <div class="card">
+                    <h3>This Month</h3>
+                    <div class="number" id="month-revenue" style="color: var(--success);">₱0</div>
+                    <div class="description">Monthly revenue</div>
+                </div>
+                <div class="card">
+                    <h3>Today's Transactions</h3>
+                    <div class="number" id="today-transactions" style="color: var(--accent);">0</div>
+                    <div class="description">Sales count today</div>
+                </div>
+            </div>
+                        
+            <div id="new-sale-form" class="form-container hidden">
+                <h3>New Sale Transaction</h3>
+                <form id="sale-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customer-name">Customer Name</label>
+                            <input type="text" id="customer-name" placeholder="Optional">
+                        </div>
+                        <div class="form-group">
+                            <label for="sale-date">Sale Date</label>
+                            <input type="date" id="sale-date" required>
+                        </div>
+                    </div>
+                    
+                    <div id="sale-items">
+                        <h4>Sale Items</h4>
+                        <div class="sale-item">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Medicine</label>
+                                    <select class="medicine-select" required onchange="updateItemPrice(this)">
+                                        <option value="">Select medicine</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Quantity</label>
+                                    <input type="number" class="quantity-input" min="1" required onchange="updateItemTotal(this)">
+                                </div>
+                                <div class="form-group">
+                                    <label>Unit Price</label>
+                                    <input type="number" class="price-input" step="0.01" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Total</label>
+                                    <input type="number" class="total-input" step="0.01" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin: 20px 0;">
+                        <button type="button" class="btn btn-secondary" onclick="addSaleItem()">+ Add Item</button>
+                        <button type="button" class="btn btn-secondary" onclick="removeSaleItem()">- Remove Item</button>
+                    </div>
+                    
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h4 style="margin: 0;">Total Amount: </h4>
+                            <span id="sale-total-amount" style="font-size: 24px; font-weight: bold; color: var(--success);">₱0.00</span>
+                        </div>
+                    </div>
+            
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn">Complete Sale</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideNewSaleForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="data-table">
+                <h3 style="padding: 15px 20px; margin: 0; background: var(--panel-green);">Recent Sales</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sale ID</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Total Amount</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-list">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #64748b;">No sales recorded today</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quick Reorder Modal -->
+        <div id="reorder-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Quick Reorder - <span id="reorder-medicine-name"></span></h3>
+                    <button class="modal-close" onclick="hideReorderModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="reorder-form">
+                        <input type="hidden" id="reorder-medicine-id">
+                        
+                        <div class="reorder-info">
+                            <div class="info-row">
+                                <span class="info-label">Current Stock:</span>
+                                <span id="reorder-current-stock" class="info-value"></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Reorder Level:</span>
+                                <span id="reorder-reorder-level" class="info-value"></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Suggested Quantity:</span>
+                                <span id="reorder-suggested-qty" class="info-value"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reorder-quantity">Add Quantity *</label>
+                            <input type="number" id="reorder-quantity" min="1" required>
+                            <small class="form-help">Enter the quantity to add to current stock</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reorder-supplier">Supplier (Optional)</label>
+                            <input type="text" id="reorder-supplier">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reorder-notes">Notes (Optional)</label>
+                            <textarea id="reorder-notes" rows="2" placeholder="Purchase order notes..."></textarea>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="submit" class="btn">Update Stock</button>
+                            <button type="button" class="btn btn-secondary" onclick="hideReorderModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile-section" class="content-section">
+            <div class="section-header">
+                <h2>User Profile</h2>
+            </div>
+
+            <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div style="display: grid; grid-template-columns: auto 1fr; gap: 30px; align-items: start;">
+                    <!-- Profile Picture Area -->
+                    <div style="text-align: center;">
+                        <div style="width: 120px; height: 120px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 40px; color: #64748b;">
+                            👤
+                        </div>
+                        <h2>Administrator/Pharmacist</h2>
+                    </div>
+
+                    <!-- Profile Information -->
+                    <div>
+                        <h3 style="margin-top: 0; color: var(--text);">Personal Information</h3>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                            <div class="profile-info-item">
+                                <label>Full Name</label>
+                                <div class="profile-info-value" id="profile-fullname">Loading...</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <label>Username</label>
+                                <div class="profile-info-value" id="profile-username">Loading...</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <label>Email</label>
+                                <div class="profile-info-value" id="profile-email">Loading...</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <label>Role</label>
+                                <div class="profile-info-value" id="profile-role">Loading...</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <label>Last Login</label>
+                                <div class="profile-info-value" id="profile-lastlogin">Loading...</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <label>Account Created</label>
+                                <div class="profile-info-value" id="profile-created">Loading...</div>
+                            </div>
+                        </div>
+
+                        <div style="border-top: 1px solid #e2e8f0; padding-top: 20px;">
+                            <h4 style="margin-bottom: 15px;">Actions</h4>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn" onclick="editProfile()">Edit Profile</button>
+                                <button class="btn btn-secondary" onclick="changePassword()">Change Password</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!--JAVASCRIPT FILES-->
+    <script src="main.js"></script>
+</body>
+</html>
